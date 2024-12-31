@@ -24,9 +24,13 @@ const query = `
         symbol
         name
         decimals
+        isErc4626
         underlyingToken {
           address
           name
+          symbol
+          decimals
+          isErc4626
         }
         scalingFactor
         priceRate

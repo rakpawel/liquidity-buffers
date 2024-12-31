@@ -27,18 +27,30 @@ import {
 import { CustomTooltip } from "@/components/CustomTooltip";
 import { calculateRatios, formatValue } from "@/lib/utils";
 
+const getProtocol = (tags: string[]) => {
+  const normalizedTags = tags.map((tag) => tag.toUpperCase());
+
+  if (normalizedTags.includes("BOOSTED_AAVE")) return "Aave";
+  if (normalizedTags.includes("BOOSTED_MORPHO")) return "Morpho";
+  return null;
+};
+
 export const PoolCard = ({ pool }: { pool: Pool }) => {
-  const {
-    data: bufferBalances,
-    isLoading,
-    error,
-  } = useQuery({
+  const { data: bufferBalances, isLoading } = useQuery({
     queryKey: ["bufferBalances", pool.address],
     queryFn: async () => {
       const balances: Record<string, BufferBalance> = {};
       for (const token of pool.poolTokens) {
-        const balance = await fetchBufferBalance(token.address);
-        balances[token.address] = balance;
+        try {
+          const balance = await fetchBufferBalance(token.address);
+          // Only add to balances if it's a valid response
+          if (balance.underlyingBalance && balance.wrappedBalance) {
+            balances[token.address] = balance;
+          }
+        } catch (error) {
+          console.error(`Error fetching balance for ${token.address}:`, error);
+          // Don't add anything to balances for this token
+        }
       }
       return balances;
     },
@@ -46,12 +58,43 @@ export const PoolCard = ({ pool }: { pool: Pool }) => {
 
   const renderTokenContent = (
     token: Token,
-    balance: BufferBalance,
+    balance: BufferBalance | undefined,
     tokenIndex: number
   ) => {
+    if (!balance) {
+      return (
+        <div key={token.address}>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <h3 className="font-medium text-zinc-100">{token.name}</h3>
+                <Badge
+                  variant="secondary"
+                  className="bg-zinc-800 hover:bg-zinc-700 text-zinc-300"
+                >
+                  {token.symbol}
+                </Badge>
+              </div>
+            </div>
+
+            <div className="h-24 w-full">
+              <div className="h-full flex items-center justify-center gap-2 text-red-400 bg-red-400/5 rounded-md border border-red-400/20">
+                <Ban className="w-4 h-4" />
+                <span className="text-sm">Failed to load buffer data</span>
+              </div>
+            </div>
+          </div>
+          {tokenIndex < pool.poolTokens.length - 1 && (
+            <Separator className="my-6 bg-zinc-800" />
+          )}
+        </div>
+      );
+    }
+
     const isEmptyBuffer =
-      parseFloat(balance.underlyingBalance) === 0 &&
-      parseFloat(balance.wrappedBalance) === 0;
+      !token.isErc4626 ||
+      (parseFloat(balance.underlyingBalance) === 0 &&
+        parseFloat(balance.wrappedBalance) === 0);
 
     const ratios = calculateRatios(
       balance.underlyingBalance,
@@ -82,9 +125,11 @@ export const PoolCard = ({ pool }: { pool: Pool }) => {
                 {token.symbol}
               </Badge>
             </div>
-            <div className="text-sm text-zinc-400">
-              {ratios.underlying}% - {ratios.wrapped}%
-            </div>
+            {token.isErc4626 && (
+              <div className="text-sm text-zinc-400">
+                {ratios.underlying}% - {ratios.wrapped}%
+              </div>
+            )}
           </div>
 
           <div className="h-16 w-full">
@@ -124,23 +169,27 @@ export const PoolCard = ({ pool }: { pool: Pool }) => {
             )}
           </div>
 
-          <div className="flex justify-between text-sm">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-[#3366FF]"></div>
-              <span className="text-zinc-400">
-                Underlying:{" "}
-                {formatValue(balance.underlyingBalance, token.decimals)}{" "}
-                {token.symbol}
-              </span>
+          {token.isErc4626 && !isEmptyBuffer && (
+            <div className="flex justify-between text-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-[#3366FF]"></div>
+                <span className="text-zinc-400">
+                  Underlying:{" "}
+                  {formatValue(balance.underlyingBalance, token.decimals)}{" "}
+                  {token.underlyingToken
+                    ? token.underlyingToken.symbol
+                    : token.symbol}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-[#4ADE80]"></div>
+                <span className="text-zinc-400">
+                  Wrapped: {formatValue(balance.wrappedBalance, token.decimals)}{" "}
+                  {token.symbol}
+                </span>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-[##4ADE80]"></div>
-              <span className="text-zinc-400">
-                Wrapped: {formatValue(balance.wrappedBalance, token.decimals)}{" "}
-                {token.symbol}
-              </span>
-            </div>
-          </div>
+          )}
         </div>
         {tokenIndex < pool.poolTokens.length - 1 && (
           <Separator className="my-6 bg-zinc-800" />
@@ -150,11 +199,20 @@ export const PoolCard = ({ pool }: { pool: Pool }) => {
   };
 
   return (
-    <Card className="bg-zinc-900 border-zinc-800">
+    <Card className="bg-zinc-900 border-zinc-800 transition-colors duration-100 hover:bg-zinc-800/50 hover:border-zinc-700/80">
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="space-y-1">
-            <CardTitle className="text-zinc-100">{pool.name}</CardTitle>
+            <CardTitle className="text-zinc-100">
+              <a
+                href={`https://balancer.fi/pools/ethereum/v3/${pool.address}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-zinc-300 transition-colors duration-200"
+              >
+                {pool.name}
+              </a>
+            </CardTitle>
             <p className="text-sm text-zinc-400">
               TVL: ${formatValue(pool.dynamicData.totalLiquidity, 0)}
             </p>
@@ -163,36 +221,34 @@ export const PoolCard = ({ pool }: { pool: Pool }) => {
             <HoverCardTrigger>
               <Info className="w-5 h-5 text-zinc-400" />
             </HoverCardTrigger>
-            <HoverCardContent className="w-80 bg-zinc-900 border-zinc-800">
+            <HoverCardContent className="w-100 bg-zinc-900 border-zinc-800">
               <div className="space-y-2">
                 <h4 className="text-sm font-semibold text-zinc-100">
-                  Pool Details
+                  Pool details
                 </h4>
                 <p className="text-sm text-zinc-400">Address: {pool.address}</p>
+                {getProtocol(pool.tags) && (
+                  <p className="text-sm text-zinc-400">
+                    Protocol: {getProtocol(pool.tags)}
+                  </p>
+                )}
               </div>
             </HoverCardContent>
           </HoverCard>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="min-h-[350px]">
         {isLoading ? (
-          <div className="h-32 flex items-center justify-center">
+          <div className="min-h-[300px] flex items-center justify-center">
             <Loader2 className="w-6 h-6 animate-spin text-zinc-400" />
           </div>
-        ) : error ? (
-          <div className="h-32 flex items-center justify-center text-red-400">
-            Error loading buffer data
-          </div>
         ) : (
-          bufferBalances && (
-            <>
-              {pool.poolTokens.map((token, tokenIndex) => {
-                const balance = bufferBalances[token.address];
-                if (!balance) return null;
-                return renderTokenContent(token, balance, tokenIndex);
-              })}
-            </>
-          )
+          <div>
+            {pool.poolTokens.map((token, tokenIndex) => {
+              const balance = bufferBalances?.[token.address];
+              return renderTokenContent(token, balance, tokenIndex);
+            })}
+          </div>
         )}
       </CardContent>
     </Card>

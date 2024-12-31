@@ -1,12 +1,5 @@
 import { NextResponse } from "next/server";
-import { ethers } from "ethers";
-import * as dotenv from "dotenv";
-
-dotenv.config();
-
-const abi = [
-  "function getBufferBalance(address token) view returns (uint256 underlyingBalance, uint256 wrappedBalance)",
-];
+import { getContract } from "@/lib/contract";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -19,20 +12,8 @@ export async function GET(request: Request) {
     );
   }
 
-  const providerUrl = process.env.INFURA_API_URL;
-  const contractAddress = process.env.CONTRACT_ADDRESS;
-
-  if (!providerUrl || !contractAddress) {
-    return NextResponse.json(
-      { error: "Missing required environment variables" },
-      { status: 500 }
-    );
-  }
-
   try {
-    const provider = new ethers.JsonRpcProvider(providerUrl);
-    const contract = new ethers.Contract(contractAddress, abi, provider);
-
+    const contract = getContract();
     const [underlyingBalanceRaw, wrappedBalanceRaw] =
       await contract.getBufferBalance(address);
 

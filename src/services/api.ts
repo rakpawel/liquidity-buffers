@@ -1,8 +1,21 @@
+export interface UnderlyingToken {
+  address: string;
+  name: string;
+  symbol: string;
+  decimals: number;
+  isErc4626: boolean;
+}
+
 export interface Token {
   address: string;
   symbol: string;
   name: string;
   decimals: number;
+  isErc4626: boolean;
+  underlyingToken?: UnderlyingToken;
+  scalingFactor: string;
+  priceRate: string;
+  isBufferAllowed: boolean;
 }
 
 export interface DynamicData {
@@ -18,6 +31,7 @@ export interface Pool {
   hasAnyAllowedBuffer: boolean;
   dynamicData: DynamicData;
   poolTokens: Token[];
+  tags: string[];
 }
 
 export interface BufferBalance {
