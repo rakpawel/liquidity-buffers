@@ -16,7 +16,7 @@ export const Footer = () => {
           </p>
           <nav className="flex items-center gap-8 text-zinc-600">
             <a
-              href="https://github.com/rakpawel"
+              href="https://github.com/rakpawel/liquidity-buffers"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-zinc-400 transition-colors duration-200"

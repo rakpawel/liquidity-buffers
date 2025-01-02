@@ -16,7 +16,7 @@ export const Header = () => {
           Liquidity buffers are an internal mechanism of the Balancer v3 Vault
           that enable gas efficient swaps in boosted pools. For more info{" "}
           <a
-            href="https://docs.balancer.fi/concepts/vault/buffer.html#erc4626-liquidity-buffers"
+            href="https://docs.balancer.fi/concepts/vault/buffer.html"
             target="_blank"
             rel="noopener noreferrer"
             className="text-zinc-400 hover:text-zinc-300 transition-colors duration-200"
