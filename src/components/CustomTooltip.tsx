@@ -1,6 +1,5 @@
 import { Badge } from "@/components/ui/badge";
 import { Token } from "@/services/api";
-import { calculateRatios } from "@/lib/utils";
 
 type TooltipPayload = {
   payload: {
@@ -19,11 +18,11 @@ export const CustomTooltip = ({
 }) => {
   if (active && payload && payload.length) {
     const { token, underlying, wrapped } = payload[0].payload;
-    const ratios = calculateRatios(
-      (underlying * Math.pow(10, token.decimals)).toString(),
-      (wrapped * Math.pow(10, token.decimals)).toString(),
-      token.decimals
-    );
+    const total = underlying + wrapped;
+    const ratios = {
+      underlying: ((underlying / total) * 100).toFixed(1),
+      wrapped: ((wrapped / total) * 100).toFixed(1),
+    };
 
     return (
       <div className="bg-zinc-900 p-3 rounded-lg shadow-lg border border-zinc-800 text-sm">

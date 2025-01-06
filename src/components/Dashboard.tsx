@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Loader2, Ban } from "lucide-react";
+import { Ban, Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchPools } from "@/services/api";
 import { PoolCard } from "./PoolCard";
