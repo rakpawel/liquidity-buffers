@@ -10,7 +10,9 @@ To run the project, set up the following in a `.env` file:
 
 ```
 NEXT_PUBLIC_MAINNET_RPC_URL=<Ethereum Mainnet RPC URL>
+NEXT_PUBLIC_GNOSIS_RPC_URL=<Gnosis Chain RPC URL>
 NEXT_PUBLIC_MAINNET_VAULT_EXPLORER_ADDRESS=<Balancer v3 VaultExplorer address on Mainnet>
+NEXT_PUBLIC_GNOSIS_VAULT_EXPLORER_ADDRESS=<Balancer v3 VaultExplorer address on Gnosis>
 ```
 
 ## Running the Project

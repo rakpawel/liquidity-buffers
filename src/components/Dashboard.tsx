@@ -6,15 +6,19 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchPools } from "@/services/api";
 import { PoolCard } from "./PoolCard";
 import { Header } from "./Header";
+import { useChainId } from "wagmi";
+import { SupportedChainId } from "@/config";
 
-const Dashboard = () => {
+export const Dashboard = () => {
+  const chainId = useChainId();
+
   const {
     data: pools = [],
     isLoading: isLoadingPools,
     error: poolsError,
   } = useQuery({
-    queryKey: ["pools"],
-    queryFn: fetchPools,
+    queryKey: ["pools", chainId],
+    queryFn: () => fetchPools(chainId as SupportedChainId),
   });
 
   return (

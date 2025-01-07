@@ -15,9 +15,11 @@ import {
 import { Token } from "@/services/api";
 import { CustomTooltip } from "./CustomTooltip";
 import { calculateRatios, formatValue } from "@/lib/utils";
-import { vaultExplorerContract } from "@/lib/contracts";
+import { getVaultExplorerContract } from "@/lib/contracts";
 import { formatUnits } from "viem";
 import { BufferViewSkeleton } from "./BufferViewSkeleton";
+import { useChainId } from "wagmi";
+import { SupportedChainId } from "@/config";
 
 export const BufferView = ({
   token,
@@ -26,12 +28,14 @@ export const BufferView = ({
   token: Token;
   isLastToken: boolean;
 }) => {
+  const chainId = useChainId();
+
   const {
     data: bufferBalance,
     isLoading,
     isError,
   } = useReadContract({
-    ...vaultExplorerContract,
+    ...getVaultExplorerContract(chainId as SupportedChainId),
     functionName: "getBufferBalance",
     args: [token.address as `0x${string}`],
     query: {

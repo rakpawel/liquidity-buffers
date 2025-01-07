@@ -1,11 +1,4 @@
-import Image from "next/image";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { NetworkSelector } from "./NetworkSelector";
 
 export const Header = () => {
   return (
@@ -35,23 +28,7 @@ export const Header = () => {
           .
         </p>
       </div>
-      <Select defaultValue="mainnet">
-        <SelectTrigger className="w-48 ml-8">
-          <div className="flex items-center">
-            <Image
-              src="/mainnet.svg"
-              alt="Mainnet"
-              width={16}
-              height={16}
-              className="mr-2"
-            />
-            <SelectValue />
-          </div>
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="mainnet">Mainnet</SelectItem>
-        </SelectContent>
-      </Select>
+      <NetworkSelector />
     </div>
   );
 };

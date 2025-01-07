@@ -10,6 +10,8 @@ import { shortCurrencyFormat } from "@/lib/utils";
 import { type Pool } from "@/services/api";
 import { Info } from "lucide-react";
 import { BufferView } from "./BufferView";
+import { useChainId } from "wagmi";
+import config, { SupportedChainId } from "@/config";
 
 const getProtocol = (tags: string[]) => {
   const normalizedTags = tags.map((tag) => tag.toUpperCase());
@@ -20,6 +22,9 @@ const getProtocol = (tags: string[]) => {
 };
 
 export const PoolCard = ({ pool }: { pool: Pool }) => {
+  const chainId = useChainId();
+  const chainConfig = config.chains[chainId as SupportedChainId];
+
   return (
     <Card className="bg-zinc-900 border-zinc-800 transition-colors duration-100 hover:bg-zinc-800/50 hover:border-zinc-700/80">
       <CardHeader>
@@ -27,7 +32,7 @@ export const PoolCard = ({ pool }: { pool: Pool }) => {
           <div className="space-y-1">
             <CardTitle className="text-zinc-100">
               <a
-                href={`https://balancer.fi/pools/ethereum/v3/${pool.address}`}
+                href={`https://balancer.fi/pools/${chainConfig.balancerPath}/v3/${pool.address}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-zinc-300 transition-colors duration-200"

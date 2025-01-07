@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server";
-
 const BALANCER_API_URL = "https://api-v3.balancer.fi/";
 
-const query = `
+const getPoolsQuery = (chainName: string) => `
   query GetPools {
     poolGetPools(
-      where: {chainIn: [MAINNET], protocolVersionIn: [3], tagIn: ["BOOSTED"]}
+      where: {chainIn: [${chainName}], protocolVersionIn: [3], tagIn: ["BOOSTED"]}
       orderBy: totalLiquidity
       orderDirection: desc
     ) {
@@ -40,15 +39,18 @@ const query = `
   }
 `;
 
-export async function GET() {
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const chain = searchParams.get("chain") || "MAINNET";
+
   try {
     const response = await fetch(BALANCER_API_URL, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ query }),
-      next: { revalidate: 60 }, // Cache for 60 seconds
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        query: getPoolsQuery(chain),
+      }),
+      next: { revalidate: 60 },
     });
 
     if (!response.ok) {

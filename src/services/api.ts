@@ -1,3 +1,5 @@
+import config, { SupportedChainId } from "@/config";
+
 export interface UnderlyingToken {
   address: string;
   name: string;
@@ -39,16 +41,11 @@ export interface BufferBalance {
   wrappedBalance: string;
 }
 
-export const fetchPools = async (): Promise<Pool[]> => {
-  const response = await fetch("/api/pools");
+export const fetchPools = async (
+  chainId: SupportedChainId
+): Promise<Pool[]> => {
+  const chainName = config.chains[chainId].graphqlChainName;
+  const response = await fetch(`/api/pools?chain=${chainName}`);
   const data = await response.json();
   return data.data.poolGetPools;
-};
-
-export const fetchBufferBalance = async (
-  tokenAddress: string
-): Promise<BufferBalance> => {
-  const response = await fetch(`/api/buffer-balance?address=${tokenAddress}`);
-  const data = await response.json();
-  return data;
 };
