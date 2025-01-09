@@ -16,14 +16,23 @@ export const Header = () => {
           >
             read the docs
           </a>{" "}
-          and check out this{" "}
+          or check out my threads on X:{" "}
           <a
             href="https://x.com/RaqPawel/status/1871291256086639004"
             target="_blank"
             rel="noopener noreferrer"
             className="text-zinc-400 hover:text-zinc-300 transition-colors duration-200"
           >
-            thread on X
+            Intro
+          </a>{" "}
+          and{" "}
+          <a
+            href="https://x.com/RaqPawel/status/1876941805771469188"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-zinc-400 hover:text-zinc-300 transition-colors duration-200"
+          >
+            deep dive
           </a>
           .
         </p>

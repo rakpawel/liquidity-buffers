@@ -2,7 +2,11 @@
 
 This dashboard allows you to view the allocation for the Balancer v3 liquidity buffers.
 
-You can read more about the buffers in the [official documentation](https://docs.balancer.fi/concepts/vault/buffer.html) and in my [X thread](https://x.com/RaqPawel/status/1871291256086639004).
+You can read more about the buffers in the [official documentation](https://docs.balancer.fi/concepts/vault/buffer.html) and in my X threads:
+- [Introduction to Boosted Pools and Liquidity Buffers](https://x.com/RaqPawel/status/1871291256086639004)  
+- [Liquidity Buffers deep dive and dashboard introduction](https://x.com/RaqPawel/status/1876941805771469188)  
+
+![Dashboard UI](./public/screenshots/dashboard.png)
 
 ## Environment Variables
 
